@@ -48,6 +48,7 @@ class GameController {
                         this.model.flippedCards.forEach(card => this.view.unflipCard(card));
                         this.model.resetFlippedCards();
                     }
+                    this.updateStats();
                 }, 1000);
             }
         }
@@ -62,6 +63,10 @@ class GameController {
     updateStats() {
         const elapsedTime = this.model.gameStarted ? this.getElapsedTime() : 0;
         this.view.updateStats(this.model.flipCount, elapsedTime);
+    }
+
+    getElapsedTime() {
+        return Math.floor((Date.now() - this.model.startTime) / 1000);
     }
 
     endGame() {
