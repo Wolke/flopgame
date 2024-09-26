@@ -2,6 +2,7 @@ class GameController {
     constructor(model, view) {
         this.model = model;
         this.view = view;
+        this.timer = null;
         this.init();
     }
 
@@ -9,6 +10,7 @@ class GameController {
         this.model.initializeCards();
         this.view.renderCards(this.model.cards);
         this.addEventListeners();
+        this.updateStats();
     }
 
     addEventListeners() {
@@ -19,6 +21,10 @@ class GameController {
                 this.handleCardClick(index);
             }
         });
+
+        this.view.resetButton.addEventListener('click', () => {
+            this.resetGame();
+        });
     }
 
     handleCardClick(index) {
@@ -26,11 +32,17 @@ class GameController {
             const flippedCard = this.model.cards[index];
             this.view.flipCard(flippedCard);
 
+            if (!this.timer && this.model.gameStarted) {
+                this.startTimer();
+            }
+
+            this.updateStats();
+
             if (this.model.flippedCards.length === 2) {
                 setTimeout(() => {
                     if (this.model.checkMatch()) {
                         if (this.model.isGameComplete()) {
-                            this.view.showGameComplete();
+                            this.endGame();
                         }
                     } else {
                         this.model.flippedCards.forEach(card => this.view.unflipCard(card));
@@ -39,5 +51,31 @@ class GameController {
                 }, 1000);
             }
         }
+    }
+
+    startTimer() {
+        this.timer = setInterval(() => {
+            this.updateStats();
+        }, 1000);
+    }
+
+    updateStats() {
+        const elapsedTime = this.model.gameStarted ? this.getElapsedTime() : 0;
+        this.view.updateStats(this.model.flipCount, elapsedTime);
+    }
+
+    endGame() {
+        clearInterval(this.timer);
+        const stats = this.model.getGameStats();
+        this.view.showGameComplete(stats);
+    }
+
+    resetGame() {
+        clearInterval(this.timer);
+        this.timer = null;
+        this.model.resetGame();
+        this.view.resetView();
+        this.view.renderCards(this.model.cards);
+        this.updateStats();
     }
 }

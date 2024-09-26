@@ -4,6 +4,10 @@ class GameModel {
         this.flippedCards = [];
         this.matchedPairs = 0;
         this.totalPairs = 6; // 預設6對卡片
+        this.flipCount = 0;
+        this.startTime = null;
+        this.endTime = null;
+        this.gameStarted = false;
     }
 
     initializeCards() {
@@ -19,11 +23,16 @@ class GameModel {
             if (!card.isFlipped) {
                 card.isFlipped = true;
                 this.flippedCards.push(card);
+                this.flipCount++;
+                if (!this.gameStarted) {
+                    this.gameStarted = true;
+                    this.startTime = Date.now();
+                }
                 return true;
             } else if (this.flippedCards.length === 1) {
-                // 只有當只有一張卡片被翻開時,才允許翻回
                 card.isFlipped = false;
                 this.flippedCards = [];
+                this.flipCount++;
                 return true;
             }
         }
@@ -52,6 +61,29 @@ class GameModel {
     }
 
     isGameComplete() {
-        return this.matchedPairs === this.totalPairs;
+        if (this.matchedPairs === this.totalPairs) {
+            this.endTime = Date.now();
+            return true;
+        }
+        return false;
+    }
+
+    getGameStats() {
+        const duration = this.endTime - this.startTime;
+        return {
+            flipCount: this.flipCount,
+            duration: Math.floor(duration / 1000)
+        };
+    }
+
+    resetGame() {
+        this.cards = [];
+        this.flippedCards = [];
+        this.matchedPairs = 0;
+        this.flipCount = 0;
+        this.startTime = null;
+        this.endTime = null;
+        this.gameStarted = false;
+        this.initializeCards();
     }
 }

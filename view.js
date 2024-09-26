@@ -1,6 +1,13 @@
 class GameView {
     constructor() {
         this.gameContainer = document.getElementById('game-container');
+        this.statsContainer = document.createElement('div');
+        this.statsContainer.id = 'stats-container';
+        document.body.insertBefore(this.statsContainer, this.gameContainer);
+        this.resetButton = document.createElement('button');
+        this.resetButton.textContent = '重新開始';
+        this.resetButton.id = 'reset-button';
+        document.body.insertBefore(this.resetButton, this.gameContainer);
     }
 
     renderCards(cards) {
@@ -39,10 +46,23 @@ class GameView {
         }
     }
 
-    showGameComplete() {
+    updateStats(flipCount, duration) {
+        this.statsContainer.innerHTML = `翻牌次數: ${flipCount} | 時間: ${duration}秒`;
+    }
+
+    showGameComplete(stats) {
         const message = document.createElement('div');
         message.className = 'game-complete';
-        message.textContent = '恭喜你完成遊戲！';
+        message.innerHTML = `
+            <h2>恭喜你完成遊戲！</h2>
+            <p>翻牌次數: ${stats.flipCount}</p>
+            <p>用時: ${stats.duration}秒</p>
+        `;
         this.gameContainer.appendChild(message);
+    }
+
+    resetView() {
+        this.gameContainer.innerHTML = '';
+        this.statsContainer.innerHTML = '';
     }
 }
